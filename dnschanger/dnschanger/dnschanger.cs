@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Security.Principal;
+using System.Net.NetworkInformation;
 using System.Net.Http;
 
 
@@ -33,15 +34,28 @@ namespace dnschanger
             }
         }
 
+        private string GetSelectedNetworkInterface()
+        {
+            if (radioBtnEthernet.Checked)
+            {
+                return "Ethernet";
+            }
+            else if (radioBtnWiFi.Checked)
+            {
+                return "Wi-Fi";
+            }
+            return null;
+        }
+
         private void btnChangeDNS_Click(object sender, EventArgs e)
         {
             string preferredDNS = txtPreferredDNS.Text.Trim();
             string alternateDNS = txtAlternateDNS.Text.Trim();
-            string networkInterface = txtNetworkInterface.Text.Trim();
+            string networkInterface = GetSelectedNetworkInterface();
 
             if (string.IsNullOrEmpty(preferredDNS) || string.IsNullOrEmpty(networkInterface))
             {
-                MessageBox.Show("Please enter the primary DNS and network interface name!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Please select primary DNS and network interface!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -58,11 +72,11 @@ namespace dnschanger
 
         private void btnResetDNS_Click(object sender, EventArgs e)
         {
-            string networkInterface = txtNetworkInterface.Text.Trim();
+            string networkInterface = GetSelectedNetworkInterface();
 
             if (string.IsNullOrEmpty(networkInterface))
             {
-                MessageBox.Show("Please enter the network interface name!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Please select network interface!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -104,6 +118,40 @@ namespace dnschanger
             {
                 StopGoodbyeDPI();
                 MessageBox.Show("GoodbyeDPI successfully stopped!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnPing_Click(object sender, EventArgs e)
+        {
+            string ipAddress = txtIP.Text.Trim();
+
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                MessageBox.Show("Please enter a valid IP address or domain name!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                Ping ping = new Ping();
+                PingReply reply = ping.Send(ipAddress);
+
+                if (reply.Status == IPStatus.Success)
+                {
+                    MessageBox.Show($"Ping sent successfully!\n" +
+                                    $"Target: {reply.Address}\n" +
+                                    $"Delay: {reply.RoundtripTime} ms\n" +
+                                    $"TTL: {reply.Options.Ttl}\n" +
+                                    $"Size: {reply.Buffer.Length} byte", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show($"Ping failed! Status: {reply.Status}", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             catch (Exception ex)
             {
