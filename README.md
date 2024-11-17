@@ -1,3 +1,5 @@
+[![Download for Windows](https://img.shields.io/badge/Download-Windows-blue?style=for-the-badge&logo=windows)](https://github.com/Swotch9399/dns-changer/releases/download/v1.3.0.0/dnschanger.exe)
+
 # DNSChanger
 
 DNSChanger is a Windows Forms application designed to simplify the process of managing DNS settings and interacting with network configurations. The tool includes various features, such as changing DNS servers, resetting DNS to default settings, testing network connectivity with `ping`, and integrating with the GoodbyeDPI tool to bypass DPI-based censorship.
