@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(dnschanger));
             this.dpıSettigsGroupBox = new System.Windows.Forms.GroupBox();
             this.chkShowConsole = new System.Windows.Forms.CheckBox();
             this.btnStopGoodbyeDPI = new System.Windows.Forms.Button();
@@ -55,6 +56,7 @@
             this.googleDnsLabel = new System.Windows.Forms.Label();
             this.cloudflareDnsGroupBox = new System.Windows.Forms.GroupBox();
             this.cloudflareDnsLabel = new System.Windows.Forms.Label();
+            this.versionLabel = new System.Windows.Forms.Label();
             this.dpıSettigsGroupBox.SuspendLayout();
             this.dnsSettigsGroupBox.SuspendLayout();
             this.pingTestGroupBox.SuspendLayout();
@@ -71,9 +73,9 @@
             this.dpıSettigsGroupBox.Controls.Add(this.btnStartGoodbyeDPI);
             this.dpıSettigsGroupBox.Controls.Add(this.argumentLabel);
             this.dpıSettigsGroupBox.Controls.Add(this.txtGoodbyeDPIArgs);
-            this.dpıSettigsGroupBox.Location = new System.Drawing.Point(12, 256);
+            this.dpıSettigsGroupBox.Location = new System.Drawing.Point(12, 171);
             this.dpıSettigsGroupBox.Name = "dpıSettigsGroupBox";
-            this.dpıSettigsGroupBox.Size = new System.Drawing.Size(412, 138);
+            this.dpıSettigsGroupBox.Size = new System.Drawing.Size(412, 121);
             this.dpıSettigsGroupBox.TabIndex = 16;
             this.dpıSettigsGroupBox.TabStop = false;
             this.dpıSettigsGroupBox.Text = "GoodbyeDPI Settings";
@@ -81,7 +83,7 @@
             // chkShowConsole
             // 
             this.chkShowConsole.AutoSize = true;
-            this.chkShowConsole.Location = new System.Drawing.Point(159, 117);
+            this.chkShowConsole.Location = new System.Drawing.Point(160, 98);
             this.chkShowConsole.Name = "chkShowConsole";
             this.chkShowConsole.Size = new System.Drawing.Size(94, 17);
             this.chkShowConsole.TabIndex = 14;
@@ -90,7 +92,7 @@
             // 
             // btnStopGoodbyeDPI
             // 
-            this.btnStopGoodbyeDPI.Location = new System.Drawing.Point(147, 79);
+            this.btnStopGoodbyeDPI.Location = new System.Drawing.Point(147, 68);
             this.btnStopGoodbyeDPI.Name = "btnStopGoodbyeDPI";
             this.btnStopGoodbyeDPI.Size = new System.Drawing.Size(114, 23);
             this.btnStopGoodbyeDPI.TabIndex = 13;
@@ -100,7 +102,7 @@
             // 
             // btnStartGoodbyeDPI
             // 
-            this.btnStartGoodbyeDPI.Location = new System.Drawing.Point(147, 50);
+            this.btnStartGoodbyeDPI.Location = new System.Drawing.Point(147, 39);
             this.btnStartGoodbyeDPI.Name = "btnStartGoodbyeDPI";
             this.btnStartGoodbyeDPI.Size = new System.Drawing.Size(114, 23);
             this.btnStartGoodbyeDPI.TabIndex = 12;
@@ -123,7 +125,8 @@
             this.txtGoodbyeDPIArgs.Name = "txtGoodbyeDPIArgs";
             this.txtGoodbyeDPIArgs.Size = new System.Drawing.Size(100, 20);
             this.txtGoodbyeDPIArgs.TabIndex = 9;
-            this.txtGoodbyeDPIArgs.Text = "-5";
+            this.txtGoodbyeDPIArgs.Text = "-5 --set-ttl 5 --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0" +
+    "ff --dnsv6-port 1253";
             // 
             // dnsSettigsGroupBox
             // 
@@ -138,7 +141,7 @@
             this.dnsSettigsGroupBox.Controls.Add(this.txtAlternateDNS);
             this.dnsSettigsGroupBox.Location = new System.Drawing.Point(12, 12);
             this.dnsSettigsGroupBox.Name = "dnsSettigsGroupBox";
-            this.dnsSettigsGroupBox.Size = new System.Drawing.Size(412, 238);
+            this.dnsSettigsGroupBox.Size = new System.Drawing.Size(412, 153);
             this.dnsSettigsGroupBox.TabIndex = 15;
             this.dnsSettigsGroupBox.TabStop = false;
             this.dnsSettigsGroupBox.Text = "DNS Settings";
@@ -146,7 +149,7 @@
             // radioBtnEthernet
             // 
             this.radioBtnEthernet.AutoSize = true;
-            this.radioBtnEthernet.Location = new System.Drawing.Point(255, 119);
+            this.radioBtnEthernet.Location = new System.Drawing.Point(255, 67);
             this.radioBtnEthernet.Name = "radioBtnEthernet";
             this.radioBtnEthernet.Size = new System.Drawing.Size(65, 17);
             this.radioBtnEthernet.TabIndex = 15;
@@ -157,7 +160,7 @@
             // radioBtnWiFi
             // 
             this.radioBtnWiFi.AutoSize = true;
-            this.radioBtnWiFi.Location = new System.Drawing.Point(200, 119);
+            this.radioBtnWiFi.Location = new System.Drawing.Point(200, 67);
             this.radioBtnWiFi.Name = "radioBtnWiFi";
             this.radioBtnWiFi.Size = new System.Drawing.Size(49, 17);
             this.radioBtnWiFi.TabIndex = 14;
@@ -167,7 +170,7 @@
             // 
             // btnResetDNS
             // 
-            this.btnResetDNS.Location = new System.Drawing.Point(147, 207);
+            this.btnResetDNS.Location = new System.Drawing.Point(147, 124);
             this.btnResetDNS.Name = "btnResetDNS";
             this.btnResetDNS.Size = new System.Drawing.Size(114, 23);
             this.btnResetDNS.TabIndex = 13;
@@ -177,7 +180,7 @@
             // 
             // btnChangeDNS
             // 
-            this.btnChangeDNS.Location = new System.Drawing.Point(147, 167);
+            this.btnChangeDNS.Location = new System.Drawing.Point(147, 95);
             this.btnChangeDNS.Name = "btnChangeDNS";
             this.btnChangeDNS.Size = new System.Drawing.Size(114, 23);
             this.btnChangeDNS.TabIndex = 12;
@@ -205,7 +208,7 @@
             // networkInterfaceLabel
             // 
             this.networkInterfaceLabel.AutoSize = true;
-            this.networkInterfaceLabel.Location = new System.Drawing.Point(99, 121);
+            this.networkInterfaceLabel.Location = new System.Drawing.Point(99, 69);
             this.networkInterfaceLabel.Name = "networkInterfaceLabel";
             this.networkInterfaceLabel.Size = new System.Drawing.Size(95, 13);
             this.networkInterfaceLabel.TabIndex = 8;
@@ -214,7 +217,7 @@
             // alternativeDnsLabel
             // 
             this.alternativeDnsLabel.AutoSize = true;
-            this.alternativeDnsLabel.Location = new System.Drawing.Point(108, 70);
+            this.alternativeDnsLabel.Location = new System.Drawing.Point(108, 42);
             this.alternativeDnsLabel.Name = "alternativeDnsLabel";
             this.alternativeDnsLabel.Size = new System.Drawing.Size(86, 13);
             this.alternativeDnsLabel.TabIndex = 7;
@@ -222,7 +225,7 @@
             // 
             // txtAlternateDNS
             // 
-            this.txtAlternateDNS.Location = new System.Drawing.Point(200, 67);
+            this.txtAlternateDNS.Location = new System.Drawing.Point(200, 39);
             this.txtAlternateDNS.Name = "txtAlternateDNS";
             this.txtAlternateDNS.Size = new System.Drawing.Size(100, 20);
             this.txtAlternateDNS.TabIndex = 10;
@@ -233,16 +236,16 @@
             this.pingTestGroupBox.Controls.Add(this.btnPing);
             this.pingTestGroupBox.Controls.Add(this.ipLabel);
             this.pingTestGroupBox.Controls.Add(this.txtIP);
-            this.pingTestGroupBox.Location = new System.Drawing.Point(12, 400);
+            this.pingTestGroupBox.Location = new System.Drawing.Point(12, 298);
             this.pingTestGroupBox.Name = "pingTestGroupBox";
-            this.pingTestGroupBox.Size = new System.Drawing.Size(412, 78);
+            this.pingTestGroupBox.Size = new System.Drawing.Size(412, 69);
             this.pingTestGroupBox.TabIndex = 17;
             this.pingTestGroupBox.TabStop = false;
             this.pingTestGroupBox.Text = "Ping Test";
             // 
             // btnPing
             // 
-            this.btnPing.Location = new System.Drawing.Point(147, 46);
+            this.btnPing.Location = new System.Drawing.Point(147, 39);
             this.btnPing.Name = "btnPing";
             this.btnPing.Size = new System.Drawing.Size(114, 23);
             this.btnPing.TabIndex = 12;
@@ -253,17 +256,17 @@
             // ipLabel
             // 
             this.ipLabel.AutoSize = true;
-            this.ipLabel.Location = new System.Drawing.Point(139, 16);
+            this.ipLabel.Location = new System.Drawing.Point(133, 16);
             this.ipLabel.Name = "ipLabel";
-            this.ipLabel.Size = new System.Drawing.Size(20, 13);
+            this.ipLabel.Size = new System.Drawing.Size(61, 13);
             this.ipLabel.TabIndex = 6;
-            this.ipLabel.Text = "IP:";
+            this.ipLabel.Text = "IP Address:";
             // 
             // txtIP
             // 
-            this.txtIP.Location = new System.Drawing.Point(165, 13);
+            this.txtIP.Location = new System.Drawing.Point(200, 13);
             this.txtIP.Name = "txtIP";
-            this.txtIP.Size = new System.Drawing.Size(135, 20);
+            this.txtIP.Size = new System.Drawing.Size(100, 20);
             this.txtIP.TabIndex = 9;
             this.txtIP.Text = "1.1.1.1";
             // 
@@ -272,7 +275,7 @@
             this.recommendedDnsGroupBox.Controls.Add(this.openDnsGroupBox);
             this.recommendedDnsGroupBox.Controls.Add(this.googleDnsGroupBox);
             this.recommendedDnsGroupBox.Controls.Add(this.cloudflareDnsGroupBox);
-            this.recommendedDnsGroupBox.Location = new System.Drawing.Point(12, 484);
+            this.recommendedDnsGroupBox.Location = new System.Drawing.Point(12, 373);
             this.recommendedDnsGroupBox.Name = "recommendedDnsGroupBox";
             this.recommendedDnsGroupBox.Size = new System.Drawing.Size(412, 105);
             this.recommendedDnsGroupBox.TabIndex = 18;
@@ -342,20 +345,32 @@
             this.cloudflareDnsLabel.TabIndex = 7;
             this.cloudflareDnsLabel.Text = "Preferred: 1.1.1.1\r\n\r\nAlternative: 1.0.0.1";
             // 
+            // versionLabel
+            // 
+            this.versionLabel.AutoSize = true;
+            this.versionLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.versionLabel.Location = new System.Drawing.Point(376, 481);
+            this.versionLabel.Name = "versionLabel";
+            this.versionLabel.Size = new System.Drawing.Size(46, 13);
+            this.versionLabel.TabIndex = 19;
+            this.versionLabel.Text = "v1.4.0.0";
+            // 
             // dnschanger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(434, 601);
+            this.ClientSize = new System.Drawing.Size(434, 501);
+            this.Controls.Add(this.versionLabel);
             this.Controls.Add(this.recommendedDnsGroupBox);
             this.Controls.Add(this.pingTestGroupBox);
             this.Controls.Add(this.dpıSettigsGroupBox);
             this.Controls.Add(this.dnsSettigsGroupBox);
-            this.MaximumSize = new System.Drawing.Size(450, 640);
-            this.MinimumSize = new System.Drawing.Size(450, 640);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(450, 540);
+            this.MinimumSize = new System.Drawing.Size(450, 540);
             this.Name = "dnschanger";
-            this.ShowIcon = false;
             this.Text = "DNS Changer";
             this.Load += new System.EventHandler(this.dnschanger_Load);
             this.dpıSettigsGroupBox.ResumeLayout(false);
@@ -372,6 +387,7 @@
             this.cloudflareDnsGroupBox.ResumeLayout(false);
             this.cloudflareDnsGroupBox.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -404,6 +420,7 @@
         private System.Windows.Forms.Label googleDnsLabel;
         private System.Windows.Forms.GroupBox cloudflareDnsGroupBox;
         private System.Windows.Forms.Label cloudflareDnsLabel;
+        private System.Windows.Forms.Label versionLabel;
     }
 }
 
