@@ -59,8 +59,8 @@
             this.versionLabel = new System.Windows.Forms.Label();
             this.chkAutoStart = new System.Windows.Forms.CheckBox();
             this.appSettingsGroupBox = new System.Windows.Forms.GroupBox();
-            this.btnDeleteGoodbyeDPI = new System.Windows.Forms.Button();
             this.btnCheckForUpdates = new System.Windows.Forms.Button();
+            this.btnDeleteGoodbyeDPI = new System.Windows.Forms.Button();
             this.dpıSettigsGroupBox.SuspendLayout();
             this.dnsSettigsGroupBox.SuspendLayout();
             this.pingTestGroupBox.SuspendLayout();
@@ -358,7 +358,7 @@
             this.versionLabel.Name = "versionLabel";
             this.versionLabel.Size = new System.Drawing.Size(46, 13);
             this.versionLabel.TabIndex = 19;
-            this.versionLabel.Text = "v1.8.0.0";
+            this.versionLabel.Text = "v2.0.0.0";
             // 
             // chkAutoStart
             // 
@@ -384,16 +384,6 @@
             this.appSettingsGroupBox.TabStop = false;
             this.appSettingsGroupBox.Text = "App Settings";
             // 
-            // btnDeleteGoodbyeDPI
-            // 
-            this.btnDeleteGoodbyeDPI.Location = new System.Drawing.Point(147, 40);
-            this.btnDeleteGoodbyeDPI.Name = "btnDeleteGoodbyeDPI";
-            this.btnDeleteGoodbyeDPI.Size = new System.Drawing.Size(114, 23);
-            this.btnDeleteGoodbyeDPI.TabIndex = 21;
-            this.btnDeleteGoodbyeDPI.Text = "Delete GDPI";
-            this.btnDeleteGoodbyeDPI.UseVisualStyleBackColor = true;
-            this.btnDeleteGoodbyeDPI.Click += new System.EventHandler(this.btnDeleteGoodbyeDPI_Click);
-            // 
             // btnCheckForUpdates
             // 
             this.btnCheckForUpdates.Location = new System.Drawing.Point(147, 11);
@@ -403,6 +393,16 @@
             this.btnCheckForUpdates.Text = "Check for Updates";
             this.btnCheckForUpdates.UseVisualStyleBackColor = true;
             this.btnCheckForUpdates.Click += new System.EventHandler(this.btnCheckForUpdates_Click);
+            // 
+            // btnDeleteGoodbyeDPI
+            // 
+            this.btnDeleteGoodbyeDPI.Location = new System.Drawing.Point(147, 40);
+            this.btnDeleteGoodbyeDPI.Name = "btnDeleteGoodbyeDPI";
+            this.btnDeleteGoodbyeDPI.Size = new System.Drawing.Size(114, 23);
+            this.btnDeleteGoodbyeDPI.TabIndex = 21;
+            this.btnDeleteGoodbyeDPI.Text = "Delete GDPI";
+            this.btnDeleteGoodbyeDPI.UseVisualStyleBackColor = true;
+            this.btnDeleteGoodbyeDPI.Click += new System.EventHandler(this.btnDeleteGoodbyeDPI_Click);
             // 
             // dnschanger
             // 
