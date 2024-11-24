@@ -117,7 +117,10 @@ DNSChanger is a Windows Forms application designed to simplify the process of ma
 ---
 
 ## License
-This tool is provided as-is. It integrates the open-source [GoodbyeDPI](https://github.com/ValdikSS/GoodbyeDPI) utility. Refer to the GoodbyeDPI repository for licensing information.
+This tool is provided as-is under the **MIT License**. See the [LICENSE](LICENSE) file for more information.
+
+### GoodbyeDPI License
+The GoodbyeDPI tool is released under the **MIT License**. Please refer to the [GoodbyeDPI GitHub](https://github.com/ValdikSS/GoodbyeDPI) repository for detailed license information.
 
 ---
 
