@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DNSChanger.Properties {
+namespace dnschanger.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
