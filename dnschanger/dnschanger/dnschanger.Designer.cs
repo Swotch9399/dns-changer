@@ -57,6 +57,10 @@
             this.cloudflareDnsGroupBox = new System.Windows.Forms.GroupBox();
             this.cloudflareDnsLabel = new System.Windows.Forms.Label();
             this.versionLabel = new System.Windows.Forms.Label();
+            this.chkAutoStart = new System.Windows.Forms.CheckBox();
+            this.appSettingsGroupBox = new System.Windows.Forms.GroupBox();
+            this.btnDeleteGoodbyeDPI = new System.Windows.Forms.Button();
+            this.btnCheckForUpdates = new System.Windows.Forms.Button();
             this.dpıSettigsGroupBox.SuspendLayout();
             this.dnsSettigsGroupBox.SuspendLayout();
             this.pingTestGroupBox.SuspendLayout();
@@ -64,6 +68,7 @@
             this.openDnsGroupBox.SuspendLayout();
             this.googleDnsGroupBox.SuspendLayout();
             this.cloudflareDnsGroupBox.SuspendLayout();
+            this.appSettingsGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // dpıSettigsGroupBox
@@ -349,18 +354,63 @@
             // 
             this.versionLabel.AutoSize = true;
             this.versionLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.versionLabel.Location = new System.Drawing.Point(376, 481);
+            this.versionLabel.Location = new System.Drawing.Point(376, 579);
             this.versionLabel.Name = "versionLabel";
             this.versionLabel.Size = new System.Drawing.Size(46, 13);
             this.versionLabel.TabIndex = 19;
-            this.versionLabel.Text = "v1.4.0.0";
+            this.versionLabel.Text = "v1.8.0.0";
+            // 
+            // chkAutoStart
+            // 
+            this.chkAutoStart.AutoSize = true;
+            this.chkAutoStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.chkAutoStart.Location = new System.Drawing.Point(160, 69);
+            this.chkAutoStart.Name = "chkAutoStart";
+            this.chkAutoStart.Size = new System.Drawing.Size(95, 17);
+            this.chkAutoStart.TabIndex = 20;
+            this.chkAutoStart.Text = "Run at Startup";
+            this.chkAutoStart.UseVisualStyleBackColor = true;
+            this.chkAutoStart.CheckedChanged += new System.EventHandler(this.chkAutoStart_CheckedChanged);
+            // 
+            // appSettingsGroupBox
+            // 
+            this.appSettingsGroupBox.Controls.Add(this.btnCheckForUpdates);
+            this.appSettingsGroupBox.Controls.Add(this.btnDeleteGoodbyeDPI);
+            this.appSettingsGroupBox.Controls.Add(this.chkAutoStart);
+            this.appSettingsGroupBox.Location = new System.Drawing.Point(12, 484);
+            this.appSettingsGroupBox.Name = "appSettingsGroupBox";
+            this.appSettingsGroupBox.Size = new System.Drawing.Size(412, 92);
+            this.appSettingsGroupBox.TabIndex = 21;
+            this.appSettingsGroupBox.TabStop = false;
+            this.appSettingsGroupBox.Text = "App Settings";
+            // 
+            // btnDeleteGoodbyeDPI
+            // 
+            this.btnDeleteGoodbyeDPI.Location = new System.Drawing.Point(147, 40);
+            this.btnDeleteGoodbyeDPI.Name = "btnDeleteGoodbyeDPI";
+            this.btnDeleteGoodbyeDPI.Size = new System.Drawing.Size(114, 23);
+            this.btnDeleteGoodbyeDPI.TabIndex = 21;
+            this.btnDeleteGoodbyeDPI.Text = "Delete GDPI";
+            this.btnDeleteGoodbyeDPI.UseVisualStyleBackColor = true;
+            this.btnDeleteGoodbyeDPI.Click += new System.EventHandler(this.btnDeleteGoodbyeDPI_Click);
+            // 
+            // btnCheckForUpdates
+            // 
+            this.btnCheckForUpdates.Location = new System.Drawing.Point(147, 11);
+            this.btnCheckForUpdates.Name = "btnCheckForUpdates";
+            this.btnCheckForUpdates.Size = new System.Drawing.Size(114, 23);
+            this.btnCheckForUpdates.TabIndex = 22;
+            this.btnCheckForUpdates.Text = "Check for Updates";
+            this.btnCheckForUpdates.UseVisualStyleBackColor = true;
+            this.btnCheckForUpdates.Click += new System.EventHandler(this.btnCheckForUpdates_Click);
             // 
             // dnschanger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(434, 501);
+            this.ClientSize = new System.Drawing.Size(434, 601);
+            this.Controls.Add(this.appSettingsGroupBox);
             this.Controls.Add(this.versionLabel);
             this.Controls.Add(this.recommendedDnsGroupBox);
             this.Controls.Add(this.pingTestGroupBox);
@@ -368,8 +418,9 @@
             this.Controls.Add(this.dnsSettigsGroupBox);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(450, 540);
-            this.MinimumSize = new System.Drawing.Size(450, 540);
+            this.MaximumSize = new System.Drawing.Size(450, 640);
+            this.MinimizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(450, 640);
             this.Name = "dnschanger";
             this.Text = "DNS Changer";
             this.Load += new System.EventHandler(this.dnschanger_Load);
@@ -386,6 +437,8 @@
             this.googleDnsGroupBox.PerformLayout();
             this.cloudflareDnsGroupBox.ResumeLayout(false);
             this.cloudflareDnsGroupBox.PerformLayout();
+            this.appSettingsGroupBox.ResumeLayout(false);
+            this.appSettingsGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -421,6 +474,10 @@
         private System.Windows.Forms.GroupBox cloudflareDnsGroupBox;
         private System.Windows.Forms.Label cloudflareDnsLabel;
         private System.Windows.Forms.Label versionLabel;
+        private System.Windows.Forms.CheckBox chkAutoStart;
+        private System.Windows.Forms.GroupBox appSettingsGroupBox;
+        private System.Windows.Forms.Button btnDeleteGoodbyeDPI;
+        private System.Windows.Forms.Button btnCheckForUpdates;
     }
 }
 

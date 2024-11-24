@@ -14,15 +14,107 @@ using System.Net;
 using System.Security.Principal;
 using System.Net.NetworkInformation;
 using System.Net.Http;
+using IWshRuntimeLibrary;
+using File = System.IO.File;
+using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
+using dnschanger.Properties;
 
 
 namespace dnschanger
 {
     public partial class dnschanger : Form
     {
+        private const string AppName = "DNSChanger";
+
+        private NotifyIcon trayIcon;
+        private ContextMenuStrip trayMenu;
+
         public dnschanger()
         {
             InitializeComponent();
+            InitializeTrayMenu();
+            LoadAutoStartSetting();
+        }
+
+        private void InitializeTrayMenu()
+        {
+            trayIcon = new NotifyIcon();
+            trayIcon.Icon = new Icon(GetType(), "dnschanger.ico");
+            trayIcon.Text = "DNS Changer";
+            trayIcon.Visible = true;
+
+            trayMenu = new ContextMenuStrip();
+            var checkUpdatesMenuItem = new ToolStripMenuItem("Check for Updates", null, OnCheckForUpdates);
+            trayMenu.Items.Add(checkUpdatesMenuItem);
+            var showMenuItem = new ToolStripMenuItem("Show", null, OnShow);
+            trayMenu.Items.Add(showMenuItem);
+            var hideMenuItem = new ToolStripMenuItem("Hide", null, OnHide);
+            trayMenu.Items.Add(hideMenuItem);
+            trayMenu.Items.Add("Exit", null, OnExit);
+
+            trayIcon.ContextMenuStrip = trayMenu;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                this.Hide();
+                trayIcon.Visible = true;
+            }
+
+            base.OnFormClosing(e);
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            trayIcon.Visible = false;
+            base.OnFormClosed(e);
+        }
+
+        private void OnCheckForUpdates(object sender, EventArgs e)
+        {
+            CheckForUpdates(sender, e);
+        }
+
+        private void OnShow(object sender, EventArgs e)
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+
+            UpdateMenuItemStates();
+        }
+
+        private void OnHide(object sender, EventArgs e)
+        {
+            this.Hide();
+
+            UpdateMenuItemStates();
+        }
+
+        private void OnExit(object sender, EventArgs e)
+        {
+            trayIcon.Visible = false;
+            Application.Exit();
+        }
+
+        private void UpdateMenuItemStates()
+        {
+            var showMenuItem = trayMenu.Items[0];
+            var hideMenuItem = trayMenu.Items[1];
+            if (this.Visible)
+            {
+                showMenuItem.Enabled = false;
+                hideMenuItem.Enabled = true;
+            }
+
+            else
+            {
+                showMenuItem.Enabled = true;
+                hideMenuItem.Enabled = false;
+            }
         }
 
         private void dnschanger_Load(object sender, EventArgs e)
@@ -40,10 +132,12 @@ namespace dnschanger
             {
                 return "Ethernet";
             }
+
             else if (radioBtnWiFi.Checked)
             {
                 return "Wi-Fi";
             }
+
             return null;
         }
 
@@ -64,6 +158,7 @@ namespace dnschanger
                 SetDNS(networkInterface, preferredDNS, alternateDNS);
                 MessageBox.Show("DNS settings changed successfully!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -85,13 +180,14 @@ namespace dnschanger
                 ResetDNS(networkInterface);
                 MessageBox.Show("DNS settings reset to default!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private async void btnStartGoodbyeDPI_Click(object sender, EventArgs e)
+        private void btnStartGoodbyeDPI_Click(object sender, EventArgs e)
         {
             string arguments = txtGoodbyeDPIArgs.Text.Trim();
 
@@ -106,6 +202,7 @@ namespace dnschanger
                 InstallAndRunGoodbyeDPI(arguments);
                 MessageBox.Show("GoodbyeDPI launched successfully!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -119,6 +216,7 @@ namespace dnschanger
                 StopGoodbyeDPI();
                 MessageBox.Show("GoodbyeDPI successfully stopped!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -148,14 +246,76 @@ namespace dnschanger
                                     $"TTL: {reply.Options.Ttl}\n" +
                                     $"Size: {reply.Buffer.Length} byte", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+
                 else
                 {
                     MessageBox.Show($"Ping failed! Status: {reply.Status}", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnCheckForUpdates_Click(object sender, EventArgs e)
+        {
+            CheckForUpdates(sender, e);
+        }
+
+        private void btnDeleteGoodbyeDPI_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string downloadPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2.zip");
+                string extractPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2");
+
+                if (File.Exists(downloadPath))
+                {
+                    try
+                    {
+                        File.Delete(downloadPath);
+                    }
+
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+                if (Directory.Exists(extractPath))
+                {
+                    try
+                    {
+                        Directory.Delete(extractPath, true);
+                    }
+
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+                MessageBox.Show("GoodbyeDPI has been removed successfully.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void chkAutoStart_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkAutoStart.Checked)
+            {
+                AddToStartup();
+            }
+
+            else
+            {
+                RemoveFromStartup();
             }
         }
 
@@ -180,31 +340,45 @@ namespace dnschanger
             string downloadPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2.zip");
             string extractPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2");
 
-            if (!File.Exists(downloadPath))
+            string projectGoodbyeDPIExecutable = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "goodbyedpi-0.2.3rc3-2", "x86", "goodbyedpi.exe");
+
+            if (!File.Exists(Path.Combine(extractPath, "goodbyedpi.exe")))
             {
-                using (WebClient client = new WebClient())
+                if (!File.Exists(downloadPath))
                 {
-                    client.DownloadFile(goodbyeDPIUrl, downloadPath);
+                    using (WebClient client = new WebClient())
+                    {
+                        client.DownloadFile(goodbyeDPIUrl, downloadPath);
+                    }
+                }
+
+                if (!Directory.Exists(extractPath))
+                {
+                    System.IO.Compression.ZipFile.ExtractToDirectory(downloadPath, extractPath);
                 }
             }
 
-            if (!Directory.Exists(extractPath))
-            {
-                System.IO.Compression.ZipFile.ExtractToDirectory(downloadPath, extractPath);
-            }
-
-            string nestedPath = Path.Combine(extractPath, "goodbyedpi-0.2.3rc3-2", "x86");
-            string goodbyeDPIExecutable = Path.Combine(nestedPath, "goodbyedpi.exe");
+            string goodbyeDPIExecutable = Path.Combine(extractPath, "goodbyedpi-0.2.3rc3-2", "x86", "goodbyedpi.exe");
 
             if (!File.Exists(goodbyeDPIExecutable))
             {
-                throw new Exception("GoodbyeDPI executable not found!");
+                if (File.Exists(projectGoodbyeDPIExecutable))
+                {
+                    MessageBox.Show("'GoodbyeDPI' was not found in the temporary directory. The file within the project is being run.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                    goodbyeDPIExecutable = projectGoodbyeDPIExecutable;
+                }
+
+                else
+                {
+                    throw new Exception("GoodbyeDPI executable not found!");
+                }
             }
 
             Process process = new Process();
             process.StartInfo.FileName = goodbyeDPIExecutable;
             process.StartInfo.Arguments = arguments;
-            process.StartInfo.WorkingDirectory = nestedPath;
+            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(goodbyeDPIExecutable);
             process.StartInfo.CreateNoWindow = !chkShowConsole.Checked;
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.Verb = "runas";
@@ -217,6 +391,118 @@ namespace dnschanger
             {
                 process.Kill();
                 process.WaitForExit();
+            }
+
+            foreach (var process in Process.GetProcessesByName("WinDivert"))
+            {
+                process.Kill();
+                process.WaitForExit();
+            }
+
+            ExecuteCommand($"sc stop WinDivert");
+        }
+
+        private async void CheckForUpdates(object sender, EventArgs e)
+        {
+            try
+            {
+                var releaseInfo = await GetLatestReleaseFromGitHubAsync("https://api.github.com/repos/swotch9399/dns-changer/releases/latest");
+
+                var currentVersion = Application.ProductVersion;
+
+                var latestVersion = releaseInfo.Item1;
+                var downloadUrl = releaseInfo.Item2;
+
+                var latestVersionWithoutV = latestVersion.StartsWith("v") ? latestVersion.Substring(1) : latestVersion;
+
+                if (new Version(latestVersionWithoutV) > new Version(currentVersion))
+                {
+                    DialogResult result = MessageBox.Show($"A new version is available!\n( Current version: {currentVersion}, New version: {latestVersion} )\nWould you like to download now?", "Update Found", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(downloadUrl);
+                    }
+                }
+
+                else
+                {
+                    MessageBox.Show("Your app is at the latest version.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task<Tuple<string, string>> GetLatestReleaseFromGitHubAsync(string url)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", "C# App");
+
+                var response = await client.GetStringAsync(url);
+
+                var json = JObject.Parse(response);
+                var latestVersion = json["tag_name"].ToString();
+                var downloadUrl = json["assets"][0]["browser_download_url"].ToString();
+
+                return new Tuple<string, string>(latestVersion, downloadUrl);
+            }
+        }
+
+        private void LoadAutoStartSetting()
+        {
+            string shortcutPath = GetStartupShortcutPath();
+            chkAutoStart.Checked = File.Exists(shortcutPath);
+        }
+
+        private void AddToStartup()
+        {
+            try
+            {
+                string shortcutPath = GetStartupShortcutPath();
+                string exePath = Application.ExecutablePath;
+
+                WshShell shell = new WshShell();
+                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
+                shortcut.TargetPath = exePath;
+                shortcut.WorkingDirectory = Path.GetDirectoryName(exePath);
+                shortcut.Save();
+
+                MessageBox.Show("The application is set to run on startup.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string GetStartupShortcutPath()
+        {
+            string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+            return Path.Combine(startupFolderPath, $"{AppName}.lnk");
+        }
+
+        private void RemoveFromStartup()
+        {
+            try
+            {
+                string shortcutPath = GetStartupShortcutPath();
+
+                if (File.Exists(shortcutPath))
+                {
+                    File.Delete(shortcutPath);
+                    MessageBox.Show("Startup is disabled.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
