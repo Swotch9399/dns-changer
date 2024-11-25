@@ -102,8 +102,8 @@ namespace dnschanger
 
         private void UpdateMenuItemStates()
         {
-            var showMenuItem = trayMenu.Items[0];
-            var hideMenuItem = trayMenu.Items[1];
+            var showMenuItem = trayMenu.Items[1];
+            var hideMenuItem = trayMenu.Items[2];
             if (this.Visible)
             {
                 showMenuItem.Enabled = false;
