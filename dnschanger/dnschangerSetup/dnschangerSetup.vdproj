@@ -64,12 +64,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F83ABD3AB0A9E78EEC5FB799B2A68FF9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_3A10A518DF8B4F6E8D7EE26B86ECC891"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -97,6 +91,12 @@
         "OwnerKey" = "8:_4300F27247952B0E7416AF4452E6522C"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F83ABD3AB0A9E78EEC5FB799B2A68FF9"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -115,6 +115,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
+            }
         }
         "Release"
         {
@@ -131,6 +147,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -401,9 +425,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:DNS Changer"
+        "ProductName" = "8:DNSChanger"
         "ProductCode" = "8:{63C85F60-0567-41AE-87C2-3AE3747A1970}"
-        "PackageCode" = "8:{C2836E8B-1E71-49E4-A596-C5B99EB47286}"
+        "PackageCode" = "8:{761BA303-FED8-4F9D-8DCE-D646BDD596D1}"
         "UpgradeCode" = "8:{3B67D772-62F7-4752-9407-26FD89CD4514}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
@@ -414,7 +438,7 @@
         "Manufacturer" = "8:Swotch"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:DNS Changer"
+        "Title" = "8:DNSChanger"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Swotch"
         "Keywords" = "8:"
