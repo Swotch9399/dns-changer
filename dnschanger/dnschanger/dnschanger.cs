@@ -17,7 +17,6 @@ using System.Net.Http;
 using IWshRuntimeLibrary;
 using File = System.IO.File;
 using System.Xml.Linq;
-using Newtonsoft.Json.Linq;
 using dnschanger.Properties;
 using System.Text.RegularExpressions;
 
