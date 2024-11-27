@@ -35,6 +35,7 @@ namespace dnschanger
             InitializeComponent();
             InitializeTrayMenu();
             LoadAutoStartSetting();
+            Application.ApplicationExit += OnApplicationExit;
         }
 
         private void InitializeTrayMenu()
@@ -54,6 +55,11 @@ namespace dnschanger
             trayMenu.Items.Add("Exit", null, OnExit);
 
             trayIcon.ContextMenuStrip = trayMenu;
+        }
+
+        private void OnApplicationExit(object sender, EventArgs e)
+        {
+            StopGoodbyeDPI();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -266,43 +272,15 @@ namespace dnschanger
 
         private void btnDeleteGoodbyeDPI_Click(object sender, EventArgs e)
         {
-            try
+            if (IsProcessRunning("goodbyedpi") || IsProcessRunning("WinDivert"))
             {
-                string downloadPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2.zip");
-                string extractPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2");
-
-                if (File.Exists(downloadPath))
-                {
-                    try
-                    {
-                        File.Delete(downloadPath);
-                    }
-
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-
-                if (Directory.Exists(extractPath))
-                {
-                    try
-                    {
-                        Directory.Delete(extractPath, true);
-                    }
-
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-
-                MessageBox.Show("GoodbyeDPI has been removed successfully.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                StopGoodbyeDPI();
+                DeleteGoodbyeDPI();
             }
 
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DeleteGoodbyeDPI();
             }
         }
 
@@ -400,6 +378,53 @@ namespace dnschanger
             }
 
             ExecuteCommand($"sc stop WinDivert");
+        }
+
+        private void DeleteGoodbyeDPI()
+        {
+            try
+            {
+                string downloadPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2.zip");
+                string extractPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2");
+
+                if (File.Exists(downloadPath))
+                {
+                    try
+                    {
+                        File.Delete(downloadPath);
+                    }
+
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+                if (Directory.Exists(extractPath))
+                {
+                    try
+                    {
+                        Directory.Delete(extractPath, true);
+                    }
+
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+
+                MessageBox.Show("GoodbyeDPI has been removed successfully.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private bool IsProcessRunning(string processName)
+        {
+            return Process.GetProcessesByName(processName).Any();
         }
 
         private async void CheckForUpdates(object sender, EventArgs e)
