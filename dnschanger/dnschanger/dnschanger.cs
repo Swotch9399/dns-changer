@@ -19,6 +19,7 @@ using File = System.IO.File;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 using dnschanger.Properties;
+using System.Text.RegularExpressions;
 
 
 namespace dnschanger
@@ -406,7 +407,9 @@ namespace dnschanger
         {
             try
             {
-                var releaseInfo = await GetLatestReleaseFromGitHubAsync("https://api.github.com/repos/swotch9399/dns-changer/releases/latest");
+                string apiUrl = "https://api.github.com/repos/swotch9399/dns-changer/releases/latest";
+
+                var releaseInfo = await GetLatestReleaseFromGitHubAsync(apiUrl);
 
                 var currentVersion = Application.ProductVersion;
 
@@ -445,9 +448,13 @@ namespace dnschanger
 
                 var response = await client.GetStringAsync(url);
 
-                var json = JObject.Parse(response);
-                var latestVersion = json["tag_name"].ToString();
-                var downloadUrl = json["assets"][0]["browser_download_url"].ToString();
+                var tagRegex = new Regex("\"tag_name\"\\s*:\\s*\"(.*?)\"");
+                var tagMatch = tagRegex.Match(response);
+                var latestVersion = tagMatch.Success ? tagMatch.Groups[1].Value : "Unknown";
+
+                var downloadUrlRegex = new Regex("\"browser_download_url\"\\s*:\\s*\"(.*?)\"");
+                var downloadMatch = downloadUrlRegex.Match(response);
+                var downloadUrl = downloadMatch.Success ? downloadMatch.Groups[1].Value : "Unknown";
 
                 return new Tuple<string, string>(latestVersion, downloadUrl);
             }
