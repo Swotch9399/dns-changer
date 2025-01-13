@@ -19,6 +19,8 @@ using File = System.IO.File;
 using System.Xml.Linq;
 using dnschanger.Properties;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
+using System.Security.Cryptography;
 
 
 namespace dnschanger
@@ -26,6 +28,17 @@ namespace dnschanger
     public partial class dnschanger : Form
     {
         private const string AppName = "DNSChanger";
+        private string executablePath = Application.ExecutablePath;
+
+        private string defaultPreferredIPv4DNS = "1.1.1.1";
+        private string defaultAlternateIPv4DNS = "1.0.0.1";
+
+        private string defaultPreferredIPv6DNS = "2606:4700:4700::1111";
+        private string defaultAlternateIPv6DNS = "2606:4700:4700::1001";
+
+        private string defaultGoodbyeDPIArgs = "-5 --set-ttl 5 --dns-addr 77.88.8.8 --dns-port 1253 --dnsv6-addr 2a02:6b8::feed:0ff --dnsv6-port 1253";
+
+        private string defaultIP = "1.1.1.1";
 
         private NotifyIcon trayIcon;
         private ContextMenuStrip trayMenu;
@@ -34,7 +47,6 @@ namespace dnschanger
         {
             InitializeComponent();
             InitializeTrayMenu();
-            LoadAutoStartSetting();
             Application.ApplicationExit += OnApplicationExit;
         }
 
@@ -69,6 +81,11 @@ namespace dnschanger
                 e.Cancel = true;
                 this.Hide();
                 trayIcon.Visible = true;
+
+                var showMenuItem = trayMenu.Items[1];
+                var hideMenuItem = trayMenu.Items[2];
+                showMenuItem.Enabled = true;
+                hideMenuItem.Enabled = false;
             }
 
             base.OnFormClosing(e);
@@ -110,6 +127,7 @@ namespace dnschanger
         {
             var showMenuItem = trayMenu.Items[1];
             var hideMenuItem = trayMenu.Items[2];
+
             if (this.Visible)
             {
                 showMenuItem.Enabled = false;
@@ -127,19 +145,58 @@ namespace dnschanger
         {
             if (!IsRunningAsAdministrator())
             {
-                MessageBox.Show("The application was not run as administrator. Run it again as administrator.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                Application.Exit();
+                DialogResult result = MessageBox.Show("The application was not run as administrator. Run it again as administrator ?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    RestartAsAdmin();
+                }
+
+                else
+                {
+                    Application.Exit();
+                }
+            }
+
+            chkRememberSettings.Checked = Properties.Settings.Default.RememberSettings;
+
+            if (Properties.Settings.Default.RememberSettings)
+            {
+                txtPreferredIPv4DNS.Text = Properties.Settings.Default.PreferredIPv4DNS;
+                txtAlternateIPv4DNS.Text = Properties.Settings.Default.AlternateIPv4DNS;
+                txtPreferredIPv6DNS.Text = Properties.Settings.Default.PreferredIPv6DNS;
+                txtAlternateIPv6DNS.Text = Properties.Settings.Default.AlternateIPv6DNS;
+                txtGoodbyeDPIArgs.Text = Properties.Settings.Default.GoodbyeDPIArgs;
+                txtIP.Text = Properties.Settings.Default.IPAddress;
             }
         }
 
-        private string GetSelectedNetworkInterface()
+        private void txtPreferredIPv4DNS_TextChanged(object sender, EventArgs e)
         {
-            if (radioBtnEthernet.Checked)
+            if (chkRememberSettings.Checked)
+            {
+                Properties.Settings.Default.PreferredIPv4DNS = txtPreferredIPv4DNS.Text;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private void txtAlternateIPv4DNS_TextChanged(object sender, EventArgs e)
+        {
+            if (chkRememberSettings.Checked)
+            {
+                Properties.Settings.Default.AlternateIPv4DNS = txtAlternateIPv4DNS.Text;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private string GetSelectedIPv4NetworkInterface()
+        {
+            if (radioBtnIPv4Ethernet.Checked)
             {
                 return "Ethernet";
             }
 
-            else if (radioBtnWiFi.Checked)
+            else if (radioBtnIPv4WiFi.Checked)
             {
                 return "Wi-Fi";
             }
@@ -147,11 +204,21 @@ namespace dnschanger
             return null;
         }
 
-        private void btnChangeDNS_Click(object sender, EventArgs e)
+        private void btnPreferredIPv4DNSDefault_Click(object sender, EventArgs e)
         {
-            string preferredDNS = txtPreferredDNS.Text.Trim();
-            string alternateDNS = txtAlternateDNS.Text.Trim();
-            string networkInterface = GetSelectedNetworkInterface();
+            txtPreferredIPv4DNS.Text = defaultPreferredIPv4DNS;
+        }
+
+        private void btnAlternateIPv4DNSDefault_Click(object sender, EventArgs e)
+        {
+            txtAlternateIPv4DNS.Text = defaultAlternateIPv4DNS;
+        }
+
+        private void btnChangeIPv4DNS_Click(object sender, EventArgs e)
+        {
+            string preferredDNS = txtPreferredIPv4DNS.Text.Trim();
+            string alternateDNS = txtAlternateIPv4DNS.Text.Trim();
+            string networkInterface = GetSelectedIPv4NetworkInterface();
 
             if (string.IsNullOrEmpty(preferredDNS) || string.IsNullOrEmpty(networkInterface))
             {
@@ -161,19 +228,19 @@ namespace dnschanger
 
             try
             {
-                SetDNS(networkInterface, preferredDNS, alternateDNS);
+                IPv4SetDNS(networkInterface, preferredDNS, alternateDNS);
                 MessageBox.Show("DNS settings changed successfully!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void btnResetDNS_Click(object sender, EventArgs e)
+        private void btnResetIPv4DNS_Click(object sender, EventArgs e)
         {
-            string networkInterface = GetSelectedNetworkInterface();
+            string networkInterface = GetSelectedIPv4NetworkInterface();
 
             if (string.IsNullOrEmpty(networkInterface))
             {
@@ -183,14 +250,117 @@ namespace dnschanger
 
             try
             {
-                ResetDNS(networkInterface);
+                IPv4ResetDNS(networkInterface);
                 MessageBox.Show("DNS settings reset to default!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void txtPreferredIPv6DNS_TextChanged(object sender, EventArgs e)
+        {
+            if (chkRememberSettings.Checked)
+            {
+                Properties.Settings.Default.PreferredIPv6DNS = txtPreferredIPv6DNS.Text;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private void txtAlternateIPv6DNS_TextChanged(object sender, EventArgs e)
+        {
+            if (chkRememberSettings.Checked)
+            {
+                Properties.Settings.Default.AlternateIPv6DNS = txtAlternateIPv6DNS.Text;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private string GetSelectedIPv6NetworkInterface()
+        {
+            if (radioBtnIPv6Ethernet.Checked)
+            {
+                return "Ethernet";
+            }
+
+            else if (radioBtnIPv6WiFi.Checked)
+            {
+                return "Wi-Fi";
+            }
+
+            return null;
+        }
+
+        private void btnPreferredIPv6DNSDefault_Click(object sender, EventArgs e)
+        {
+            txtPreferredIPv6DNS.Text = defaultPreferredIPv6DNS;
+        }
+
+        private void btnAlternateIPv6DNSDefault_Click(object sender, EventArgs e)
+        {
+            txtAlternateIPv6DNS.Text = defaultAlternateIPv6DNS;
+        }
+
+        private void btnChangeIPv6DNS_Click(object sender, EventArgs e)
+        {
+            string preferredDNS = txtPreferredIPv6DNS.Text.Trim();
+            string alternateDNS = txtAlternateIPv6DNS.Text.Trim();
+            string networkInterface = GetSelectedIPv6NetworkInterface();
+
+            if (string.IsNullOrEmpty(preferredDNS) || string.IsNullOrEmpty(networkInterface))
+            {
+                MessageBox.Show("Please select primary DNS and network interface!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                IPv6SetDNS(networkInterface, preferredDNS, alternateDNS);
+                MessageBox.Show("DNS settings changed successfully!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnResetIPv6DNS_Click(object sender, EventArgs e)
+        {
+            string networkInterface = GetSelectedIPv6NetworkInterface();
+
+            if (string.IsNullOrEmpty(networkInterface))
+            {
+                MessageBox.Show("Please select network interface!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                IPv6ResetDNS(networkInterface);
+                MessageBox.Show("DNS settings reset to default!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void txtGoodbyeDPIArgs_TextChanged(object sender, EventArgs e)
+        {
+            if (chkRememberSettings.Checked)
+            {
+                Properties.Settings.Default.GoodbyeDPIArgs = txtGoodbyeDPIArgs.Text;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private void btnGoodbyeDPIArgsDefault_Click(object sender, EventArgs e)
+        {
+            txtGoodbyeDPIArgs.Text = defaultGoodbyeDPIArgs;
         }
 
         private void btnStartGoodbyeDPI_Click(object sender, EventArgs e)
@@ -205,13 +375,13 @@ namespace dnschanger
 
             try
             {
-                InstallAndRunGoodbyeDPI(arguments);
+                InstallAndStartGoodbyeDPI(arguments);
                 MessageBox.Show("GoodbyeDPI launched successfully!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -225,8 +395,74 @@ namespace dnschanger
 
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void btnServiceInstallGoodbyeDPI_Click(object sender, EventArgs e)
+        {
+            string arguments = txtGoodbyeDPIArgs.Text.Trim();
+
+            if (string.IsNullOrEmpty(arguments))
+            {
+                MessageBox.Show("Please enter arguments for GoodbyeDPI!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                ServiceInstallGoodbyeDPI(arguments);
+                MessageBox.Show("Goodbye DPI services successfully installed!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnServiceDeleteGoodbyeDPI_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ServiceDeleteGoodbyeDPI();
+                MessageBox.Show("GoodbyeDPI services successfully deleted!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnDeleteGoodbyeDPI_Click(object sender, EventArgs e)
+        {
+            if (IsProcessRunning("goodbyedpi") || IsProcessRunning("WinDivert") || IsProcessRunning("WinDivert14"))
+            {
+                StopGoodbyeDPI();
+                ServiceDeleteGoodbyeDPI();
+                DeleteGoodbyeDPI();
+            }
+
+            else
+            {
+                ServiceDeleteGoodbyeDPI();
+                DeleteGoodbyeDPI();
+            }
+        }
+
+        private void txtIP_TextChanged(object sender, EventArgs e)
+        {
+            if (chkRememberSettings.Checked)
+            {
+                Properties.Settings.Default.IPAddress = txtIP.Text;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private void btnIPDefault_Click(object sender, EventArgs e)
+        {
+            txtIP.Text = defaultIP;
         }
 
         private void btnPing_Click(object sender, EventArgs e)
@@ -246,11 +482,7 @@ namespace dnschanger
 
                 if (reply.Status == IPStatus.Success)
                 {
-                    MessageBox.Show($"Ping sent successfully!\n" +
-                                    $"Target: {reply.Address}\n" +
-                                    $"Delay: {reply.RoundtripTime} ms\n" +
-                                    $"TTL: {reply.Options.Ttl}\n" +
-                                    $"Size: {reply.Buffer.Length} byte", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Ping sent successfully!\n" + $"Target: {reply.Address}\n" + $"Delay: {reply.RoundtripTime} ms\n" + $"TTL: {reply.Options.Ttl}\n" + $"Size: {reply.Buffer.Length} byte", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 else
@@ -261,7 +493,7 @@ namespace dnschanger
 
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -270,97 +502,176 @@ namespace dnschanger
             CheckForUpdates(sender, e);
         }
 
-        private void btnDeleteGoodbyeDPI_Click(object sender, EventArgs e)
+        private void btnClearDNSCache_Click(object sender, EventArgs e)
         {
-            if (IsProcessRunning("goodbyedpi") || IsProcessRunning("WinDivert"))
+            try
             {
-                StopGoodbyeDPI();
-                DeleteGoodbyeDPI();
+                ClearDNSCache();
+                MessageBox.Show("DNS cache cleared.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
-            else
+            catch (Exception ex)
             {
-                DeleteGoodbyeDPI();
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void chkAutoStart_CheckedChanged(object sender, EventArgs e)
+        private void chkRememberSettings_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkAutoStart.Checked)
-            {
-                AddToStartup();
-            }
+            Properties.Settings.Default.RememberSettings = chkRememberSettings.Checked;
+            Properties.Settings.Default.Save();
 
-            else
+            if (!chkRememberSettings.Checked)
             {
-                RemoveFromStartup();
-            }
-        }
-
-        private void SetDNS(string interfaceName, string preferredDNS, string alternateDNS)
-        {
-            ExecuteCommand($"netsh interface ip set dns name=\"{interfaceName}\" static {preferredDNS}");
-
-            if (!string.IsNullOrEmpty(alternateDNS))
-            {
-                ExecuteCommand($"netsh interface ip add dns name=\"{interfaceName}\" {alternateDNS} index=2");
+                Properties.Settings.Default.PreferredIPv4DNS = defaultPreferredIPv4DNS;
+                Properties.Settings.Default.AlternateIPv4DNS = defaultAlternateIPv4DNS;
+                Properties.Settings.Default.PreferredIPv6DNS = defaultPreferredIPv6DNS;
+                Properties.Settings.Default.AlternateIPv6DNS = defaultAlternateIPv6DNS;
+                Properties.Settings.Default.GoodbyeDPIArgs = defaultGoodbyeDPIArgs;
+                Properties.Settings.Default.IPAddress = defaultIP;
+                Properties.Settings.Default.Save();
             }
         }
 
-        private void ResetDNS(string interfaceName)
+        private async void IPv4SetDNS(string interfaceName, string preferredDNS, string alternateDNS)
         {
-            ExecuteCommand($"netsh interface ip set dns name=\"{interfaceName}\" dhcp");
+            try
+            {
+                ExecuteCommand($"netsh interface ip set dns name=\"{interfaceName}\" static {preferredDNS}");
+
+                if (!string.IsNullOrEmpty(alternateDNS))
+                {
+                    ExecuteCommand($"netsh interface ip add dns name=\"{interfaceName}\" {alternateDNS} index=2");
+                }
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        private void InstallAndRunGoodbyeDPI(string arguments)
+        private async void IPv4ResetDNS(string interfaceName)
+        {
+            try
+            {
+                ExecuteCommand($"netsh interface ip set dns name=\"{interfaceName}\" dhcp");
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void IPv6SetDNS(string interfaceName, string preferredDNS, string alternateDNS)
+        {
+            try
+            {
+                ExecuteCommand($"netsh interface ipv6 set dns name=\"{interfaceName}\" static {preferredDNS}");
+
+                if (!string.IsNullOrEmpty(alternateDNS))
+                {
+                    ExecuteCommand($"netsh interface ipv6 add dns name=\"{interfaceName}\" {alternateDNS} index=2");
+                }
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void IPv6ResetDNS(string interfaceName)
+        {
+            try
+            {
+                ExecuteCommand($"netsh interface ipv6 set dns name=\"{interfaceName}\" dhcp");
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async Task<(string executablePath, string downloadPath, string extractPath)> DownloadAndExtractGoodbyeDPI()
         {
             string goodbyeDPIUrl = "https://github.com/ValdikSS/GoodbyeDPI/releases/download/0.2.3rc3/goodbyedpi-0.2.3rc3-2.zip";
             string downloadPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2.zip");
             string extractPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2");
+            string architecture = Environment.Is64BitOperatingSystem ? "x86_64" : "x86";
+            string goodbyeDPIExecutable = Path.Combine(extractPath, "goodbyedpi-0.2.3rc3-2", architecture, "goodbyedpi.exe");
+            string projectGoodbyeDPIExecutable = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "goodbyedpi-0.2.3rc3-2", architecture, "goodbyedpi.exe");
 
-            string projectGoodbyeDPIExecutable = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "goodbyedpi-0.2.3rc3-2", "x86", "goodbyedpi.exe");
-
-            if (!File.Exists(Path.Combine(extractPath, "goodbyedpi.exe")))
+            try
             {
-                if (!File.Exists(downloadPath))
+                if (!File.Exists(goodbyeDPIExecutable))
                 {
-                    using (WebClient client = new WebClient())
+                    if (!File.Exists(downloadPath))
                     {
-                        client.DownloadFile(goodbyeDPIUrl, downloadPath);
+                        using (WebClient client = new WebClient())
+                        {
+                            client.DownloadFile(goodbyeDPIUrl, downloadPath);
+                        }
+                    }
+
+                    if (!Directory.Exists(extractPath))
+                    {
+                        Directory.CreateDirectory(extractPath);
+                        ZipFile.ExtractToDirectory(downloadPath, extractPath);
                     }
                 }
 
-                if (!Directory.Exists(extractPath))
+                if (!File.Exists(goodbyeDPIExecutable))
                 {
-                    System.IO.Compression.ZipFile.ExtractToDirectory(downloadPath, extractPath);
+                    if (File.Exists(projectGoodbyeDPIExecutable))
+                    {
+                        MessageBox.Show("'GoodbyeDPI' was not found in the temporary directory. The file within the project is being run.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        goodbyeDPIExecutable = projectGoodbyeDPIExecutable;
+                    }
+
+                    else
+                    {
+                        throw new Exception("GoodbyeDPI executable not found!");
+                    }
                 }
             }
 
-            string goodbyeDPIExecutable = Path.Combine(extractPath, "goodbyedpi-0.2.3rc3-2", "x86", "goodbyedpi.exe");
-
-            if (!File.Exists(goodbyeDPIExecutable))
+            catch (Exception ex)
             {
-                if (File.Exists(projectGoodbyeDPIExecutable))
-                {
-                    MessageBox.Show("'GoodbyeDPI' was not found in the temporary directory. The file within the project is being run.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                    goodbyeDPIExecutable = projectGoodbyeDPIExecutable;
-                }
-
-                else
-                {
-                    throw new Exception("GoodbyeDPI executable not found!");
-                }
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return (null, null, null);
             }
 
-            Process process = new Process();
-            process.StartInfo.FileName = goodbyeDPIExecutable;
-            process.StartInfo.Arguments = arguments;
-            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(goodbyeDPIExecutable);
-            process.StartInfo.CreateNoWindow = !chkShowConsole.Checked;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.Verb = "runas";
-            process.Start();
+            return (goodbyeDPIExecutable, downloadPath, extractPath);
+        }
+
+        private async void InstallAndStartGoodbyeDPI(string arguments)
+        {
+            var (goodbyeDPIExecutable, downloadPath, extractPath) = await DownloadAndExtractGoodbyeDPI();
+
+            if (string.IsNullOrEmpty(goodbyeDPIExecutable))
+            {
+                return;
+            }
+
+            try
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = goodbyeDPIExecutable;
+                process.StartInfo.Arguments = arguments;
+                process.StartInfo.WorkingDirectory = Path.GetDirectoryName(goodbyeDPIExecutable);
+                process.StartInfo.CreateNoWindow = !chkShowConsole.Checked;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.Verb = "runas";
+                process.Start();
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void StopGoodbyeDPI()
@@ -377,16 +688,44 @@ namespace dnschanger
                 process.WaitForExit();
             }
 
+            foreach (var process in Process.GetProcessesByName("WinDivert14"))
+            {
+                process.Kill();
+                process.WaitForExit();
+            }
+
+            ExecuteCommand($"sc stop GoodbyeDPI");
             ExecuteCommand($"sc stop WinDivert");
+            ExecuteCommand($"sc stop WinDivert14");
         }
 
-        private void DeleteGoodbyeDPI()
+        private async void ServiceInstallGoodbyeDPI(string arguments)
         {
+            var (goodbyeDPIExecutable, downloadPath, extractPath) = await DownloadAndExtractGoodbyeDPI();
+
+            if (string.IsNullOrEmpty(goodbyeDPIExecutable))
+            {
+                return;
+            }
+
+            ServiceDeleteGoodbyeDPI();
+            ExecuteCommand($"sc create GoodbyeDPI binPath= \"{goodbyeDPIExecutable} {arguments}\" start= auto");
+        }
+
+        private async void ServiceDeleteGoodbyeDPI()
+        {
+            StopGoodbyeDPI();
+            ExecuteCommand($"sc delete GoodbyeDPI");
+            ExecuteCommand($"sc delete WinDivert");
+            ExecuteCommand($"sc delete WinDivert14");
+        }
+
+        private async void DeleteGoodbyeDPI()
+        {
+            var (goodbyeDPIExecutable, downloadPath, extractPath) = await DownloadAndExtractGoodbyeDPI();
+
             try
             {
-                string downloadPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2.zip");
-                string extractPath = Path.Combine(Path.GetTempPath(), "goodbyedpi-0.2.3rc3-2");
-
                 if (File.Exists(downloadPath))
                 {
                     try
@@ -396,7 +735,7 @@ namespace dnschanger
 
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
 
@@ -409,7 +748,7 @@ namespace dnschanger
 
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
 
@@ -418,13 +757,8 @@ namespace dnschanger
 
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private bool IsProcessRunning(string processName)
-        {
-            return Process.GetProcessesByName(processName).Any();
         }
 
         private async void CheckForUpdates(object sender, EventArgs e)
@@ -460,7 +794,7 @@ namespace dnschanger
 
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -484,56 +818,16 @@ namespace dnschanger
             }
         }
 
-        private void LoadAutoStartSetting()
-        {
-            string shortcutPath = GetStartupShortcutPath();
-            chkAutoStart.Checked = File.Exists(shortcutPath);
-        }
-
-        private void AddToStartup()
+        private async void ClearDNSCache()
         {
             try
             {
-                string shortcutPath = GetStartupShortcutPath();
-                string exePath = Application.ExecutablePath;
-
-                WshShell shell = new WshShell();
-                IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutPath);
-                shortcut.TargetPath = exePath;
-                shortcut.WorkingDirectory = Path.GetDirectoryName(exePath);
-                shortcut.Save();
-
-                MessageBox.Show("The application is set to run on startup.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ExecuteCommand($"ipconfig /flushdns");
             }
 
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private string GetStartupShortcutPath()
-        {
-            string startupFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-            return Path.Combine(startupFolderPath, $"{AppName}.lnk");
-        }
-
-        private void RemoveFromStartup()
-        {
-            try
-            {
-                string shortcutPath = GetStartupShortcutPath();
-
-                if (File.Exists(shortcutPath))
-                {
-                    File.Delete(shortcutPath);
-                    MessageBox.Show("Startup is disabled.", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -544,6 +838,32 @@ namespace dnschanger
 
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
+
+        private bool IsProcessRunning(string processName)
+        {
+            return Process.GetProcessesByName(processName).Any();
+        }
+
+        private void RestartAsAdmin()
+        {
+            try
+            {
+                var exePath = Application.ExecutablePath;
+                var processStartInfo = new ProcessStartInfo(exePath)
+                {
+                    Verb = "runas",
+                    UseShellExecute = true
+                };
+                Process.Start(processStartInfo);
+                Application.Exit();
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
 
         private void ExecuteCommand(string command)
         {
@@ -561,11 +881,6 @@ namespace dnschanger
             string error = process.StandardError.ReadToEnd();
 
             process.WaitForExit();
-
-            if (process.ExitCode != 0)
-            {
-                throw new Exception($"The command could not be run: {error}");
-            }
         }
     }
 }

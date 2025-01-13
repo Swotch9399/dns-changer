@@ -22,5 +22,89 @@ namespace dnschanger.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RememberSettings {
+            get {
+                return ((bool)(this["RememberSettings"]));
+            }
+            set {
+                this["RememberSettings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PreferredIPv4DNS {
+            get {
+                return ((string)(this["PreferredIPv4DNS"]));
+            }
+            set {
+                this["PreferredIPv4DNS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AlternateIPv4DNS {
+            get {
+                return ((string)(this["AlternateIPv4DNS"]));
+            }
+            set {
+                this["AlternateIPv4DNS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PreferredIPv6DNS {
+            get {
+                return ((string)(this["PreferredIPv6DNS"]));
+            }
+            set {
+                this["PreferredIPv6DNS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AlternateIPv6DNS {
+            get {
+                return ((string)(this["AlternateIPv6DNS"]));
+            }
+            set {
+                this["AlternateIPv6DNS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string GoodbyeDPIArgs {
+            get {
+                return ((string)(this["GoodbyeDPIArgs"]));
+            }
+            set {
+                this["GoodbyeDPIArgs"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string IPAddress {
+            get {
+                return ((string)(this["IPAddress"]));
+            }
+            set {
+                this["IPAddress"] = value;
+            }
+        }
     }
 }
