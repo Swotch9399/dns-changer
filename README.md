@@ -50,22 +50,49 @@ DNSChanger is a Windows Forms application designed to simplify the process of ma
 
 **Usage:**  
 1. Enter the desired command-line arguments for GoodbyeDPI in the `Arguments` field.  
-2. Click `Start GoodbyeDPI` to launch the tool.  
-3. To stop GoodbyeDPI, click `Stop GoodbyeDPI`.  
-4. To remove GoodbyeDPI, click `Remove GoodbyeDPI`.
+2. Click `Start GDPI` to launch the tool.  
+3. To stop GoodbyeDPI, click `Stop GDPI`.  
+4. To delete GoodbyeDPI, click `Delete GDPI`.
 
 ---
 
-### 5. Auto-Start Option
-- **Auto-Start on Windows Startup**  
-  Configure DNSChanger to automatically start when Windows starts by adding it to the startup folder.
+### 5. GoodbyeDPI Windows Service Setup
+- **Service Install GDPI (Install GoodbyeDPI as a Windows Service)**  
+  GoodbyeDPI can now be installed as a Windows service. This option allows GoodbyeDPI to automatically start every time Windows boots and continue bypassing DPI-based censorship on network connections. 
 
 **Usage:**  
-1. Enable **Auto-Start** to make the app launch automatically with Windows.
+1. Click on **Service Install GDPI** to install GoodbyeDPI as a Windows service.  
+2. The application will set up GoodbyeDPI as a service, ensuring it starts automatically with Windows.
+
+- **Service Delete GDPI (Remove GoodbyeDPI Windows Service)**  
+  After installing GoodbyeDPI as a Windows service, you can use this option to remove the service. This will stop GoodbyeDPI from running as a service.
+
+**Usage:**  
+1. Click **Service Delete GDPI** to remove the GoodbyeDPI Windows service.  
+2. This will completely remove GoodbyeDPI from the system and prevent it from starting automatically.
 
 ---
 
-### 6. System Tray Integration
+### 6. DNS Cache Clear
+- **DNS Cache Clear (Clear DNS Cache)**  
+  DNSChanger now includes the ability to clear the DNS cache. Old DNS records can sometimes cause network connectivity issues, and this feature helps clear the DNS cache to ensure that changes take effect immediately.
+
+**Usage:**  
+1. Click on the **DNS Cache Clear** button to clear the DNS cache.  
+2. After this process, the DNS cache will be reset, potentially improving network connectivity.
+
+---
+
+### 7. Remember User Inputs
+- **Save and Restore User Inputs (Remember User Inputs)**  
+  DNSChanger now has the ability to save user-entered DNS settings and GoodbyeDPI configurations. This feature allows users to restore their previous settings after closing and reopening the application.
+
+**Usage:**  
+1. Enable the **Remember Settings** check box.
+
+---
+
+### 8. System Tray Integration
 - **System Tray Icon**  
   DNSChanger minimizes to the system tray for easy access. Right-click the tray icon for quick access to the following features:
   - **Check for Updates**: Check for new versions of DNSChanger.
@@ -74,7 +101,7 @@ DNSChanger is a Windows Forms application designed to simplify the process of ma
 
 ---
 
-### 7. Run as Administrator Check
+### 9. Run as Administrator Check
 - **Administrator Privileges**  
   The application must be run as an administrator to modify network configurations or execute GoodbyeDPI. If not started with elevated privileges, the application will display a warning and close.
 
@@ -95,8 +122,12 @@ DNSChanger is a Windows Forms application designed to simplify the process of ma
   Configures the DNS settings to "Obtain DNS server address automatically" using `netsh`.
 - **GoodbyeDPI:**  
   Downloads GoodbyeDPI from the official GitHub repository, extracts the files, and launches the executable with the specified arguments.
+- **GoodbyeDPI Service:** 
+  It uses the 'sc' command line utility to download and install services.
 - **Ping:**  
   Utilizes the `System.Net.NetworkInformation.Ping` class to send ICMP echo requests and display the results.
+- **DNS Cache Clear:**
+  It uses the 'ipconfig /flushdns' command line utility to flush the DNS cache.
 
 ---
 
