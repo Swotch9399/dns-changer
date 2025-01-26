@@ -14,6 +14,30 @@ header {
     align-items: center;
 }
 
+p {
+    font-size: 1rem;
+    margin-bottom: 15px;
+}
+
+code {
+    background-color: #2b2b2b;
+    color: #1e90ff;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+strong {
+    color: #2d7abe;
+}
+
+hr {
+    border: none;
+    height: 2px;
+    width: 60%;
+    background-color: #2d7abe;
+    margin: 20px auto;
+}
+
 .logo {
     font-size: 2em;
     font-weight: bold;
@@ -58,28 +82,11 @@ nav a:hover {
     line-height: 1.6;
 }
 
-p {
-    font-size: 1rem;
-    margin-bottom: 15px;
-}
-
-code {
-    background-color: #2b2b2b;
-    color: #1e90ff;
-    padding: 2px 5px;
-    border-radius: 3px;
-}
-
-strong {
-    color: #f9a825;
-}
-
-hr {
-    border: none;
-    height: 2px;
-    width: 60%;
-    background: linear-gradient(to right, #1e90ff, #f9a825, #1e90ff);
-    margin: 20px auto;
+.app-image {
+    max-width: 30%;
+    height: auto;
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
 }
 
 .btn {
@@ -102,7 +109,7 @@ hr {
     box-shadow: none;
 }
 
-.btn-oneclickdownload {
+.btn-sourcecode {
     padding: 15px 30px;
     font-size: 1.2em;
     margin: 10px;
@@ -116,7 +123,7 @@ hr {
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
 }
 
-.btn-oneclickdownload:hover {
+.btn-sourcecode:hover {
     background-color: #ffffff;
     color: #000;
     box-shadow: none;
@@ -151,6 +158,18 @@ hr {
 
 .feature-item i {
     margin-bottom: 15px;
+    color: #2d7abe;
+}
+
+.user-guide {
+    padding: 60px 20px;
+    text-align: center;
+    color: #fff;
+}
+
+.user-guide h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
     color: #2d7abe;
 }
 
@@ -252,30 +271,74 @@ input:focus, textarea:focus {
     box-shadow: 0 0 8px rgba(0, 206, 201, 0.7);
 }
 
-.submit-btn-yellow {
-    width: 50%;
-    padding: 15px;
-    background-color: #ffd000;
+.faq-section {
+    background-color: #111;
+    color: #fff;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.faq-section h2 {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+    color: #2d7abe;
+}
+
+.faq-item {
+    margin: 20px auto;
+    max-width: 800px;
+    text-align: left;
+    border: 1px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #222;
+    transition: box-shadow 0.3s;
+}
+
+.faq-item:hover {
+    box-shadow: 0 0 10px #2d7abe;
+}
+
+.faq-question {
+    background-color: transparent;
     color: #fff;
     font-size: 1.2em;
-    border: 2px solid transparent;
-    border-radius: 10px;
+    width: 100%;
+    text-align: left;
+    padding: 15px 20px;
+    border: none;
+    outline: none;
     cursor: pointer;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.submit-btn-yellow:hover {
-    background-color: #333;
-    border-color: #ffd000;
-    box-shadow: 0 0 8px rgba(0, 206, 201, 0.7);
+.faq-question:hover {
+    background-color: #2d7abe;
+    color: #000;
 }
 
-.submit-btn-yellow:active {
-    background-color: #333;
-    border-color: #ffd000;
-    box-shadow: 0 0 8px rgba(0, 206, 201, 0.7);
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 20px;
 }
+
+.faq-answer p {
+    margin: 20px 0;
+    font-size: 1em;
+    color: #b2bec3;
+    line-height: 1.6;
+}
+
+.faq-item.open .faq-answer {
+    max-height: 500px;
+    padding: 20px;
+}
+
 
 footer {
     background-color: #272727;
@@ -373,44 +436,5 @@ footer {
 }
 
 .footer-bottom a:hover {
-    color: #2d7abe;
-}
-
-@media (max-width: 768px) {
-    header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .logo, nav {
-        margin: 10px 0;
-    }
-    .main-banner h1 {
-        font-size: 2.5em;
-    }
-    .btn, .btn-sourcecode {
-        width: 80%;
-        font-size: 1em;
-    }
-    .feature-item {
-        width: 95%;
-    }
-}
-
-.app-image {
-    max-width: 30%;
-    height: auto;
-    border-radius: 10px;
-    transition: transform 0.3s ease-in-out;
-}
-
-.user-guide {
-    padding: 60px 20px;
-    text-align: center;
-    color: #fff;
-}
-
-.user-guide h2 {
-    font-size: 2.5em;
-    margin-bottom: 20px;
     color: #2d7abe;
 }
