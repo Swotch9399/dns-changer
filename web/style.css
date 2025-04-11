@@ -83,7 +83,7 @@ nav a:hover {
 }
 
 .app-image {
-    max-width: 30%;
+    max-width: 50%;
     height: auto;
     border-radius: 10px;
     transition: transform 0.3s ease-in-out;
@@ -438,3 +438,22 @@ footer {
 .footer-bottom a:hover {
     color: #2d7abe;
 }
+
+.announcement-bar {
+    background-color: #2d7abe;
+    color: #ffffff;
+    padding: 10px 0;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    position: relative;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  
+  .announcement-bar i {
+    margin-right: 8px;
+    color: #ffffff;
+  }

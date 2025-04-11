@@ -25,7 +25,7 @@ using System.Security.Cryptography;
 
 namespace dnschanger
 {
-    public partial class dnschanger : Form
+    public partial class DNSChanger : Form
     {
         private const string AppName = "DNSChanger";
         private string executablePath = Application.ExecutablePath;
@@ -43,7 +43,7 @@ namespace dnschanger
         private NotifyIcon trayIcon;
         private ContextMenuStrip trayMenu;
 
-        public dnschanger()
+        public DNSChanger()
         {
             InitializeComponent();
             InitializeTrayMenu();
@@ -58,13 +58,25 @@ namespace dnschanger
             trayIcon.Visible = true;
 
             trayMenu = new ContextMenuStrip();
+
             var checkUpdatesMenuItem = new ToolStripMenuItem("Check for Updates", null, OnCheckForUpdates);
+            checkUpdatesMenuItem.Enabled = true;
             trayMenu.Items.Add(checkUpdatesMenuItem);
+            var connectMenuItem = new ToolStripMenuItem("Connect", null, OnConnect);
+            connectMenuItem.Enabled = true;
+            trayMenu.Items.Add(connectMenuItem);
+            var disconnectMenuItem = new ToolStripMenuItem("Disconnect", null, OnDisconnect);
+            disconnectMenuItem.Enabled = false;
+            trayMenu.Items.Add(disconnectMenuItem);
             var showMenuItem = new ToolStripMenuItem("Show", null, OnShow);
+            showMenuItem.Enabled = false;
             trayMenu.Items.Add(showMenuItem);
             var hideMenuItem = new ToolStripMenuItem("Hide", null, OnHide);
+            hideMenuItem.Enabled = true;
             trayMenu.Items.Add(hideMenuItem);
-            trayMenu.Items.Add("Exit", null, OnExit);
+            var exitMenuItem = new ToolStripMenuItem("Exit", null, OnExit);
+            exitMenuItem.Enabled = true;
+            trayMenu.Items.Add(exitMenuItem);
 
             trayIcon.ContextMenuStrip = trayMenu;
         }
@@ -82,8 +94,8 @@ namespace dnschanger
                 this.Hide();
                 trayIcon.Visible = true;
 
-                var showMenuItem = trayMenu.Items[1];
-                var hideMenuItem = trayMenu.Items[2];
+                var showMenuItem = trayMenu.Items[3];
+                var hideMenuItem = trayMenu.Items[4];
                 showMenuItem.Enabled = true;
                 hideMenuItem.Enabled = false;
             }
@@ -95,6 +107,111 @@ namespace dnschanger
         {
             trayIcon.Visible = false;
             base.OnFormClosed(e);
+        }
+
+        private async void OnConnect(object sender, EventArgs e)
+        {
+            var connectMenuItem = trayMenu.Items[1];
+            var disconnectMenuItem = trayMenu.Items[2];
+
+            connectMenuItem.Enabled = false;
+            disconnectMenuItem.Enabled = true;
+
+            string preferredDNSIPv4 = txtPreferredIPv4DNS.Text.Trim();
+            string alternateDNSIPv4 = txtAlternateIPv4DNS.Text.Trim();
+            string networkInterfaceIPv4 = GetSelectedIPv4NetworkInterface();
+
+            string preferredDNSIPv6 = txtPreferredIPv6DNS.Text.Trim();
+            string alternateDNSIPv6 = txtAlternateIPv6DNS.Text.Trim();
+            string networkInterfaceIPv6 = GetSelectedIPv6NetworkInterface();
+
+            string arguments = txtGoodbyeDPIArgs.Text.Trim();
+
+            lblStatus.ForeColor = Color.Black;
+            lblStatus.Text = "Connecting...";
+
+            await Task.Delay(1000);
+
+            if (string.IsNullOrEmpty(preferredDNSIPv4) || string.IsNullOrEmpty(networkInterfaceIPv4))
+            {
+                MessageBox.Show("Please select primary DNS and network interface for IPv4!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(preferredDNSIPv6) || string.IsNullOrEmpty(networkInterfaceIPv6))
+            {
+                MessageBox.Show("Please select primary DNS and network interface for IPv6!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(arguments))
+            {
+                MessageBox.Show("Please enter arguments for GoodbyeDPI!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                IPv4SetDNS(networkInterfaceIPv4, preferredDNSIPv4, alternateDNSIPv4);
+                IPv6SetDNS(networkInterfaceIPv6, preferredDNSIPv6, alternateDNSIPv6);
+                InstallAndStartGoodbyeDPI(arguments);
+
+                lblStatus.Text = "Connected";
+                lblStatus.ForeColor = Color.Green;
+            }
+
+            catch (Exception ex)
+            {
+                lblStatus.Text = "Disconnected";
+                lblStatus.ForeColor = Color.Red;
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void OnDisconnect(object sender, EventArgs e)
+        {
+            var connectMenuItem = trayMenu.Items[1];
+            var disconnectMenuItem = trayMenu.Items[2];
+
+            connectMenuItem.Enabled = true;
+            disconnectMenuItem.Enabled = false;
+
+            string networkInterfaceIPv4 = GetSelectedIPv4NetworkInterface();
+            string networkInterfaceIPv6 = GetSelectedIPv6NetworkInterface();
+
+            if (string.IsNullOrEmpty(networkInterfaceIPv4))
+            {
+                MessageBox.Show("Please select network interface for IPv4!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(networkInterfaceIPv6))
+            {
+                MessageBox.Show("Please select network interface for IPv6!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            lblStatus.ForeColor = Color.Black;
+            lblStatus.Text = "Disconnecting...";
+
+            await Task.Delay(1000);
+
+            try
+            {
+                IPv4ResetDNS(networkInterfaceIPv4);
+                IPv6ResetDNS(networkInterfaceIPv6);
+                StopGoodbyeDPI();
+
+                lblStatus.Text = "Disconnected";
+                lblStatus.ForeColor = Color.Red;
+            }
+
+            catch (Exception ex)
+            {
+                lblStatus.Text = "Connected";
+                lblStatus.ForeColor = Color.Green;
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void OnCheckForUpdates(object sender, EventArgs e)
@@ -125,8 +242,8 @@ namespace dnschanger
 
         private void UpdateMenuItemStates()
         {
-            var showMenuItem = trayMenu.Items[1];
-            var hideMenuItem = trayMenu.Items[2];
+            var showMenuItem = trayMenu.Items[3];
+            var hideMenuItem = trayMenu.Items[4];
 
             if (this.Visible)
             {
@@ -171,6 +288,111 @@ namespace dnschanger
             }
         }
 
+        private async void btnQuickConnect_Click(object sender, EventArgs e)
+        {
+            var connectMenuItem = trayMenu.Items[1];
+            var disconnectMenuItem = trayMenu.Items[2];
+
+            connectMenuItem.Enabled = false;
+            disconnectMenuItem.Enabled = true;
+
+            string preferredDNSIPv4 = txtPreferredIPv4DNS.Text.Trim();
+            string alternateDNSIPv4 = txtAlternateIPv4DNS.Text.Trim();
+            string networkInterfaceIPv4 = GetSelectedIPv4NetworkInterface();
+
+            string preferredDNSIPv6 = txtPreferredIPv6DNS.Text.Trim();
+            string alternateDNSIPv6 = txtAlternateIPv6DNS.Text.Trim();
+            string networkInterfaceIPv6 = GetSelectedIPv6NetworkInterface();
+
+            string arguments = txtGoodbyeDPIArgs.Text.Trim();
+
+            lblStatus.ForeColor = Color.Black;
+            lblStatus.Text = "Connecting...";
+
+            await Task.Delay(1000);
+
+            if (string.IsNullOrEmpty(preferredDNSIPv4) || string.IsNullOrEmpty(networkInterfaceIPv4))
+            {
+                MessageBox.Show("Please select primary DNS and network interface for IPv4!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(preferredDNSIPv6) || string.IsNullOrEmpty(networkInterfaceIPv6))
+            {
+                MessageBox.Show("Please select primary DNS and network interface for IPv6!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(arguments))
+            {
+                MessageBox.Show("Please enter arguments for GoodbyeDPI!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                IPv4SetDNS(networkInterfaceIPv4, preferredDNSIPv4, alternateDNSIPv4);
+                IPv6SetDNS(networkInterfaceIPv6, preferredDNSIPv6, alternateDNSIPv6);
+                InstallAndStartGoodbyeDPI(arguments);
+
+                lblStatus.Text = "Connected";
+                lblStatus.ForeColor = Color.Green;
+            }
+
+            catch (Exception ex)
+            {
+                lblStatus.Text = "Disconnected";
+                lblStatus.ForeColor = Color.Red;
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void btnQuickDisconnect_Click(object sender, EventArgs e)
+        {
+            var connectMenuItem = trayMenu.Items[1];
+            var disconnectMenuItem = trayMenu.Items[2];
+
+            connectMenuItem.Enabled = true;
+            disconnectMenuItem.Enabled = false;
+
+            string networkInterfaceIPv4 = GetSelectedIPv4NetworkInterface();
+            string networkInterfaceIPv6 = GetSelectedIPv6NetworkInterface();
+
+            if (string.IsNullOrEmpty(networkInterfaceIPv4))
+            {
+                MessageBox.Show("Please select network interface for IPv4!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(networkInterfaceIPv6))
+            {
+                MessageBox.Show("Please select network interface for IPv6!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            lblStatus.ForeColor = Color.Black;
+            lblStatus.Text = "Disconnecting...";
+
+            await Task.Delay(1000);
+
+            try
+            {
+                IPv4ResetDNS(networkInterfaceIPv4);
+                IPv6ResetDNS(networkInterfaceIPv6);
+                StopGoodbyeDPI();
+
+                lblStatus.Text = "Disconnected";
+                lblStatus.ForeColor = Color.Red;
+            }
+
+            catch (Exception ex)
+            {
+                lblStatus.Text = "Connected";
+                lblStatus.ForeColor = Color.Green;
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void txtPreferredIPv4DNS_TextChanged(object sender, EventArgs e)
         {
             if (chkRememberSettings.Checked)
@@ -196,9 +418,24 @@ namespace dnschanger
                 return "Ethernet";
             }
 
-            else if (radioBtnIPv4WiFi.Checked)
+            if (radioBtnIPv4WiFi.Checked)
             {
                 return "Wi-Fi";
+            }
+
+            if (radioBtnIPv4Auto.Checked)
+            {
+                string connectionType = GetNetworkConnectionType();
+
+                if (connectionType == "Ethernet")
+                {
+                    return "Ethernet";
+                }
+
+                else if (connectionType == "Wi-Fi")
+                {
+                    return "Wi-Fi";
+                }
             }
 
             return null;
@@ -288,6 +525,21 @@ namespace dnschanger
             else if (radioBtnIPv6WiFi.Checked)
             {
                 return "Wi-Fi";
+            }
+
+            if (radioBtnIPv6Auto.Checked)
+            {
+                string connectionType = GetNetworkConnectionType();
+
+                if (connectionType == "Ethernet")
+                {
+                    return "Ethernet";
+                }
+
+                else if (connectionType == "Wi-Fi")
+                {
+                    return "Wi-Fi";
+                }
             }
 
             return null;
@@ -531,6 +783,27 @@ namespace dnschanger
                 Properties.Settings.Default.IPAddress = defaultIP;
                 Properties.Settings.Default.Save();
             }
+        }
+
+        private string GetNetworkConnectionType()
+        {
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus == OperationalStatus.Up)
+                {
+                    if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                    {
+                        return "Ethernet";
+                    }
+
+                    if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                    {
+                        return "Wi-Fi";
+                    }
+                }
+            }
+
+            return null;
         }
 
         private async void IPv4SetDNS(string interfaceName, string preferredDNS, string alternateDNS)

@@ -6,102 +6,129 @@ DNSChanger is a Windows Forms application designed to simplify the process of ma
 
 ## Features
 
-### 1. Change DNS Settings
+### 1. **Quick Connect & Disconnect**
+- **Status**  
+  Displays the current connection status (e.g., Connected / Disconnected). This helps users track whether they are connected to the network and whether DNS settings and GoodbyeDPI are active.
+
+- **Connect**  
+  Applies the selected DNS settings and starts GoodbyeDPI. This quickly activates your network with the desired DNS settings and bypasses DPI-based censorship.
+
+- **Disconnect**  
+  Resets DNS settings to default (DHCP) and stops GoodbyeDPI. This immediately disconnects from the network and resets DNS settings.
+
+#### Usage:
+1. **Quick Connect**  
+   To instantly apply DNS settings and connect, click the **Quick Connect** button. This will:
+   - Apply the selected DNS settings.
+   - Start GoodbyeDPI to bypass DPI-based censorship.
+
+2. **Quick Disconnect**  
+   To disconnect and reset settings, click the **Quick Disconnect** button. This will:
+   - Reset DNS settings to default (using DHCP).
+   - Stop any active GoodbyeDPI process.
+
+### 2. **Change DNS Settings**
 - **Primary and Alternate DNS Configuration**  
   Allows users to specify and set primary (preferred) and secondary (alternate) DNS servers for their selected network interface.
-- **Supported Network Interfaces**  
+  
+- **Supported Network Interfaces**
   - Ethernet
-  - Wi-Fi  
+  - Wi-Fi
+  
+- **Auto Network Interface Detection**  
+  Automatically detects the active network interface (Ethernet or Wi-Fi) and sets DNS settings accordingly.
 
-**Usage:**  
-1. Select the network interface (Ethernet or Wi-Fi).  
-2. Enter the preferred and alternate DNS addresses in the respective fields.  
+#### Usage:
+1. Select the network interface (Ethernet or Wi-Fi) or let the tool auto-detect it.
+2. Enter the preferred and alternate DNS addresses.
 3. Click the `Change DNS` button.
 
 ---
 
-### 2. Reset DNS to Default
+### 3. **Reset DNS to Default**
 - **Reset to DHCP**  
   Resets the DNS settings of the selected network interface to obtain DNS settings automatically using DHCP.
 
-**Usage:**  
-1. Select the network interface (Ethernet or Wi-Fi).  
+- **Auto Network Interface Detection**  
+  Automatically detects the active network interface for resetting.
+
+#### Usage:
+1. Select the network interface or let the tool auto-detect it.
 2. Click the `Reset DNS` button.
 
 ---
 
-### 3. Ping Utility
+### 4. **Ping Utility**
 - **Test Network Connectivity**  
   Send a `ping` to an IP address or domain name to test connectivity and measure latency. Provides detailed results, including round-trip time, TTL, and response status.
 
-**Usage:**  
-1. Enter a valid IP address or domain name in the `Ping` field.  
+#### Usage:
+1. Enter a valid IP address or domain name in the `Ping` field.
 2. Click the `Ping` button to execute the test.
 
 ---
 
-### 4. GoodbyeDPI Integration
+### 5. **GoodbyeDPI Integration**
 - **Download and Launch GoodbyeDPI**  
   Automates the download, extraction, and execution of the GoodbyeDPI tool, a utility to bypass DPI-based censorship. Users can specify custom arguments to configure GoodbyeDPI behavior.
+
 - **Stop GoodbyeDPI**  
   Stops all running GoodbyeDPI processes.
+
 - **Remove GoodbyeDPI**  
   Uninstalls GoodbyeDPI and deletes all associated files, including temporary folders.
 
-**Usage:**  
-1. Enter the desired command-line arguments for GoodbyeDPI in the `Arguments` field.  
-2. Click `Start GDPI` to launch the tool.  
-3. To stop GoodbyeDPI, click `Stop GDPI`.  
+#### Usage:
+1. Enter the desired command-line arguments for GoodbyeDPI in the `Arguments` field.
+2. Click `Start GDPI` to launch the tool.
+3. To stop GoodbyeDPI, click `Stop GDPI`.
 4. To delete GoodbyeDPI, click `Delete GDPI`.
 
 ---
 
-### 5. GoodbyeDPI Windows Service Setup
+### 6. **GoodbyeDPI Windows Service Setup**
 - **Service Install GDPI (Install GoodbyeDPI as a Windows Service)**  
-  GoodbyeDPI can now be installed as a Windows service. This option allows GoodbyeDPI to automatically start every time Windows boots and continue bypassing DPI-based censorship on network connections. 
-
-**Usage:**  
-1. Click on **Service Install GDPI** to install GoodbyeDPI as a Windows service.  
-2. The application will set up GoodbyeDPI as a service, ensuring it starts automatically with Windows.
+  GoodbyeDPI can now be installed as a Windows service. This option allows GoodbyeDPI to automatically start every time Windows boots and continue bypassing DPI-based censorship on network connections.
 
 - **Service Delete GDPI (Remove GoodbyeDPI Windows Service)**  
   After installing GoodbyeDPI as a Windows service, you can use this option to remove the service. This will stop GoodbyeDPI from running as a service.
 
-**Usage:**  
-1. Click **Service Delete GDPI** to remove the GoodbyeDPI Windows service.  
-2. This will completely remove GoodbyeDPI from the system and prevent it from starting automatically.
+#### Usage:
+1. Click on **Service Install GDPI** to install GoodbyeDPI as a Windows service.
+2. Click **Service Delete GDPI** to remove the GoodbyeDPI Windows service.
 
 ---
 
-### 6. DNS Cache Clear
+### 7. **DNS Cache Clear**
 - **DNS Cache Clear (Clear DNS Cache)**  
-  DNSChanger now includes the ability to clear the DNS cache. Old DNS records can sometimes cause network connectivity issues, and this feature helps clear the DNS cache to ensure that changes take effect immediately.
+  Clears the DNS cache to ensure that changes take effect immediately. This helps to resolve network connectivity issues that may be caused by old DNS records.
 
-**Usage:**  
-1. Click on the **DNS Cache Clear** button to clear the DNS cache.  
-2. After this process, the DNS cache will be reset, potentially improving network connectivity.
+#### Usage:
+1. Click on the **DNS Cache Clear** button to clear the DNS cache.
 
 ---
 
-### 7. Remember User Inputs
+### 8. **Remember User Inputs**
 - **Save and Restore User Inputs (Remember User Inputs)**  
-  DNSChanger now has the ability to save user-entered DNS settings and GoodbyeDPI configurations. This feature allows users to restore their previous settings after closing and reopening the application.
+  DNSChanger saves user-entered DNS settings and GoodbyeDPI configurations. This allows users to restore their previous settings after closing and reopening the application.
 
-**Usage:**  
-1. Enable the **Remember Settings** check box.
+#### Usage:
+1. Enable the **Remember Settings** checkbox.
 
 ---
 
-### 8. System Tray Integration
+### 9. **System Tray Integration**
 - **System Tray Icon**  
   DNSChanger minimizes to the system tray for easy access. Right-click the tray icon for quick access to the following features:
   - **Check for Updates**: Check for new versions of DNSChanger.
   - **Show/Hide**: Minimize or restore the application window.
+  - **Quick Connect**: Automatically connect to the active network interface with pre-configured DNS settings.
+  - **Quick Disconnect**: Disconnect from the network interface quickly.
   - **Exit**: Close the application completely.
 
 ---
 
-### 9. Run as Administrator Check
+### 10. Run as Administrator Check
 - **Administrator Privileges**  
   The application must be run as an administrator to modify network configurations or execute GoodbyeDPI. If not started with elevated privileges, the application will display a warning and close.
 

@@ -16,7 +16,7 @@ namespace dnschanger
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new dnschanger());
+            Application.Run(new DNSChanger());
         }
     }
 }
